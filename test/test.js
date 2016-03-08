@@ -50,11 +50,10 @@ describe('tpl2js: engine', function () {
                         link: function (scope, elem, attrs) {
                         }
                     }
-                });`
-
+                });`;
         var expected = ['templates/ng.template.basic.html'];
-
         var hash = engine.getDirectiveTemplateHash(raw)
+
         expect(hash).to.deep.equal(expected);
     });
 
@@ -62,8 +61,17 @@ describe('tpl2js: engine', function () {
 
         var raw = 'angular.module("mod").directive("dir",function(){return{scope:{},templateUrl:"templates/ng.template.basic.html",link:function(e,t,l){}}});';
         var expected = ['templates/ng.template.basic.html'];
+        var hash = engine.getDirectiveTemplateHash(raw);
 
-        var hash = engine.getDirectiveTemplateHash(raw)
+        expect(hash).to.deep.equal(expected);
+    });
+
+    it('should resolve the correct directive template hash: multiple definitions: minified', function () {
+
+        var raw = 'angular.module("mod").directive("dir",function(){return{scope:{},templateUrl:"templates/ng.template.basic.html",link:function(e,t,n){}}}),angular.module("mod").directive("dupe",function(){return{scope:{},templateUrl:"templates/ng.template.nested.parent.html",link:function(e,t,n){}}});';
+        var expected = ['templates/ng.template.basic.html', 'templates/ng.template.nested.parent.html'];
+        var hash = engine.getDirectiveTemplateHash(raw);
+
         expect(hash).to.deep.equal(expected);
     });
 });
