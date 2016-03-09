@@ -1,10 +1,17 @@
 var fs = require('fs');
 var minify = require('html-minifier').minify;
 var engine = new TemplateEngine();
+var async = require('async');
 
 
 function TemplateEngine() {
     var self = this;
+
+    function readAsync(file, callback) {
+
+        if(file)
+            fs.readFile(file, 'utf8', callback);
+    }
 
     self.getDirectiveTemplateHash = function (raw) {
 
@@ -23,6 +30,13 @@ function TemplateEngine() {
         return arr;
     }
 
+    self.getTemplates = function(hash, done) {
+
+        async.map(hash, readAsync, function(err, results) {
+            done(results);
+        });
+    }
+
     self.read = function (target, done) {
         fs.readFile(__dirname + target, 'utf8', function (err, data) {
             done(data);
@@ -38,7 +52,7 @@ function TemplateManager() {
 
         self.read(target, function (data) {
 
-            engine.getDirectiveTemplateHash(data)
+            var hash = engine.getDirectiveTemplateHash(data)
             done();
         });
     }

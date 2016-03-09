@@ -74,5 +74,16 @@ describe('tpl2js: engine', function () {
 
         expect(hash).to.deep.equal(expected);
     });
+
+    it('should retrieve the templates: hash passed', function(done) {
+
+        var hash = [__dirname + '/fixtures/templates/ng.template.basic.html', __dirname + '/fixtures/templates/ng.template.nested.parent.html'];
+
+        engine.getTemplates(hash, function(templates) {
+
+            templates.length.should.equal(2);
+            done();
+        })
+    });
 });
 

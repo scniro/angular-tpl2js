@@ -16,6 +16,7 @@
     "mocha": "^2.4.5"
   },
   "dependencies": {
+    "async": "^1.5.2",
     "html-minifier": "^1.2.0"
   }
 }
