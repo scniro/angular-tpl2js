@@ -18,7 +18,7 @@ describe('tpl2js: engine', function () {
     it('should read the JS file: allow through', function (done) {
         var i = 0;
 
-        engine.read('/test/fixtures/js/ng.module.basic.js').then(function () {
+        engine.source.read('/test/fixtures/js/ng.module.basic.js').then(function () {
             i += 1;
             expect(i).to.equal(1);
             done();
@@ -36,7 +36,7 @@ describe('tpl2js: engine', function () {
                                 }
                             });`
 
-        engine.read('/test/fixtures/js/ng.module.basic.js').then(function (data) {
+        engine.source.read('/test/fixtures/js/ng.module.basic.js').then(function (data) {
             expect(data.replace(/ /g, '').replace(/(\r\n|\n|\r)/gm, '')).to.equal(expected.replace(/ /g, '').replace(/(\r\n|\n|\r)/gm, ''));
             done();
         });
@@ -55,13 +55,13 @@ describe('tpl2js: engine', function () {
                 });`;
 
         var expected = [path.normalize('fixtures/templates/ng.template.basic.html')];
-        var hash = engine.getTemplateHash(raw, base)
+        var hash = engine.source.hash(raw, base)
 
-        hash.forEach(function (element, index, arr) {
-            arr[index] = path.relative(__dirname, hash[index])
+        hash.templates.forEach(function (element, index, arr) {
+            arr[index] = path.relative(__dirname, hash.templates[index])
         })
 
-        expect(hash).to.deep.equal(expected);
+        expect(hash.templates).to.deep.equal(expected);
     });
 
     it('should resolve the correct directive template hash: single file: minified', function () {
@@ -69,12 +69,12 @@ describe('tpl2js: engine', function () {
         var base = '/test/fixtures/js'
         var raw = 'angular.module("mod").directive("dir",function(){return{scope:{},templateUrl:"templates/ng.template.basic.html",link:function(e,t,l){}}});';
         var expected = [path.normalize('fixtures/templates/ng.template.basic.html')];
-        var hash = engine.getTemplateHash(raw, base);
-        hash.forEach(function (element, index, arr) {
-            arr[index] = path.relative(__dirname, hash[index])
+        var hash = engine.source.hash(raw, base);
+        hash.templates.forEach(function (element, index, arr) {
+            arr[index] = path.relative(__dirname, hash.templates[index])
         });
 
-        expect(hash).to.deep.equal(expected);
+        expect(hash.templates).to.deep.equal(expected);
     });
 
     it('should resolve the correct directive template hash: multiple definitions: minified', function () {
@@ -82,20 +82,20 @@ describe('tpl2js: engine', function () {
         var base = '/test/fixtures/js'
         var raw = 'angular.module("mod").directive("dir",function(){return{scope:{},templateUrl:"templates/ng.template.basic.html",link:function(e,t,n){}}}),angular.module("mod").directive("dupe",function(){return{scope:{},templateUrl:"templates/ng.template.nested.parent.html",link:function(e,t,n){}}});';
         var expected = [path.normalize('fixtures/templates/ng.template.basic.html'), path.normalize('fixtures/templates/ng.template.nested.parent.html')];
-        var hash = engine.getTemplateHash(raw, base);
-        hash.forEach(function (element, index, arr) {
-            arr[index] = path.relative(__dirname, hash[index])
+        var hash = engine.source.hash(raw, base);
+        hash.templates.forEach(function (element, index, arr) {
+            arr[index] = path.relative(__dirname, hash.templates[index])
         });
 
-        expect(hash).to.deep.equal(expected);
+        expect(hash.templates).to.deep.equal(expected);
     });
 
     it('should retrieve the templates: hash passed', function (done) {
 
-        var hash = [__dirname + '/fixtures/templates/ng.template.basic.html', __dirname + '/fixtures/templates/ng.template.nested.parent.html'];
+        var hash = {templates: [__dirname + '/fixtures/templates/ng.template.basic.html', __dirname + '/fixtures/templates/ng.template.nested.parent.html']};
 
-        engine.getTemplates(hash).then(function (templates) {
-            templates.length.should.equal(2);
+        engine.templates.get(hash).then(function (transformed) {
+            transformed.templates.length.should.equal(2);
             done();
         });
     });
@@ -103,10 +103,10 @@ describe('tpl2js: engine', function () {
     it('should retrieve the templates: hash passed: correctly minify templates', function (done) {
 
         var expected = ['<span>basic {{ stuff }}</span>', '<div><span>some parent</span><div ng-include src="\'ng.template.nested.child.html\'"></div></div>']
-        var hash = [__dirname + '/fixtures/templates/ng.template.basic.html', __dirname + '/fixtures/templates/ng.template.nested.parent.html'];
+        var hash = {templates: [__dirname + '/fixtures/templates/ng.template.basic.html', __dirname + '/fixtures/templates/ng.template.nested.parent.html']};
 
-        engine.getTemplates(hash).then(function (templates) {
-            expect(templates).to.deep.equal(expected);
+        engine.templates.get(hash).then(function (transformed) {
+            expect(transformed.templates).to.deep.equal(expected);
             done();
         });
     });
@@ -115,7 +115,7 @@ describe('tpl2js: engine', function () {
 describe('tpl2js: e2e', function () {
     it('should work/sanity check', function (done) {
 
-        tpl2js.inline('/test/fixtures/js/ng.module.basic.js', {}, function () {
+        tpl2js.inline('/test/fixtures/js/ng.module.duplicated.js', {}, function () {
             done();
         });
     });

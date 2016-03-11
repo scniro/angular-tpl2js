@@ -8,61 +8,73 @@ function TemplateEngine() {
 
     var self = this;
 
-    self.getTemplateHash = function (raw, base) {
-
-        var arr = [];
-
-        var parts = raw.split(/(?=templateUrl)/g);
-
-        parts.forEach(function (element, index) {
-
-            var match = (element.match(/(?!,)templateUrl(.*)$/gm));
-
-            if (match) {
-                var templateUrl = match[0].split(':')[1].split(',')[0].replace(/"/g, '').replace(/'/g, '').trim()
-                var relative = path.resolve(__dirname + base, '../' + templateUrl);
-                arr.push(relative);
-            }
-
-        });
-
-        return arr;
+    function readAsync(file, callback) {
+        if (file)
+            fs.readFile(file, 'utf8', callback);
     }
 
-    self.getTemplates = function (hash) {
+    self.source = {
+        hash: function (raw, base) {
+            var source = {contents: raw, templates: []};
+            var parts = source.contents.split(/(?=templateUrl)/g);
 
-        function readAsync(file, callback) {
-            if (file)
-                fs.readFile(file, 'utf8', callback);
+            parts.forEach(function (element, index) {
+
+                var match = (element.match(/(?!,)templateUrl(.*)$/gm));
+
+                if (match) {
+                    var templateUrl = match[0].split(':')[1].split(',')[0].replace(/"/g, '').replace(/'/g, '').trim()
+                    var relative = path.resolve(__dirname + base, '../' + templateUrl);
+                    source.templates.push(relative);
+                }
+            });
+
+            return source;
+        },
+        read: function (target) {
+            var deferred = new Promise(function (resolve, reject) {
+                fs.readFile(__dirname + target, 'utf8', function (err, data) {
+                    resolve(data);
+                });
+            });
+
+            return deferred;
         }
+    }
 
-        var deferred = new Promise(function (resolve, reject) {
-            async.map(hash, readAsync, function (err, results) {
+    self.templates = {
+        get: function (source) {
+            var deferred = new Promise(function (resolve, reject) {
+                async.map(source.templates, readAsync, function (err, results) {
 
-                results.forEach(function (element, index, arr) {
-                    arr[index] = minify(element, {collapseWhitespace: true, removeComments: true}); // minify the markup
+                    results.forEach(function (element, index, arr) {
+                        source.templates[index] = minify(element, {collapseWhitespace: true, removeComments: true}); // minify the markup
+                    });
+
+                    resolve(source);
+                });
+            });
+
+            return deferred;
+        },
+        set: function (transformed) {
+            var deferred = new Promise(function (resolve, reject) {
+
+                var parts = transformed.contents.split(/(?=templateUrl)(?!,)/g);
+
+                parts.forEach(function (element, index, arr) {
+
+                    var match = (element.match(/(?!,)templateUrl(.*)$/gm));
+
+                    if (match)
+                        arr[index] = arr[index].replace(/(?!,)templateUrl(.*),$/gm, 'template: \'' + transformed.templates.shift() + '\',');
                 });
 
-                resolve(results);
+                resolve(parts.join(''));
             });
-        });
 
-        return deferred;
-    }
-
-    self.injectTemplates = function(templates){
-        // incoming
-    }
-
-    self.read = function (target) {
-
-        var deferred = new Promise(function (resolve, reject) {
-            fs.readFile(__dirname + target, 'utf8', function (err, data) {
-                resolve(data);
-            });
-        });
-
-        return deferred;
+            return deferred;
+        }
     }
 }
 
@@ -72,15 +84,15 @@ function TemplateManager() {
 
     self.inline = function (target, options, done) { // file in
 
-        engine.read(target).then(function (data) {
+        engine.source.read(target).then(function (data) {
 
-            // TODO solve path madness
-            var base = path.dirname(target);
+            var base = path.dirname(target); // TODO solve path madness
+            var source = engine.source.hash(data, base);
 
-            var hash = engine.getTemplateHash(data, base);
-
-            engine.getTemplates(hash).then(function (templates) {
-                done(); // inject templates
+            engine.templates.get(source).then(function (transformed) {
+                engine.templates.set(transformed).then(function (output) {
+                    done();
+                });
             });
         });
     }
