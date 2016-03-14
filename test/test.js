@@ -1,17 +1,14 @@
 var chai = require('chai');
-var expect = chai.expect;
-var tpl2js = require('..');
 var engine = require('..').engine;
+var expect = chai.expect;
 var path = require('path');
+var tpl2js = require('..');
 
 chai.should();
 
-describe('tpl2js: init', function () {
-
-    it('should init', function () {
-        expect(tpl2js.inline).to.be.function;
-    });
-});
+String.prototype.min = function () {
+    return this.toString().replace(/ /g, '').replace(/(\r\n|\n|\r)/gm, '');
+}
 
 describe('tpl2js: engine', function () {
 
@@ -37,7 +34,7 @@ describe('tpl2js: engine', function () {
                             });`
 
         engine.source.read('/test/fixtures/js/ng.module.basic.js').then(function (data) {
-            expect(data.replace(/ /g, '').replace(/(\r\n|\n|\r)/gm, '')).to.equal(expected.replace(/ /g, '').replace(/(\r\n|\n|\r)/gm, ''));
+            expect(data.min()).to.equal(expected.min());
             done();
         });
     });
@@ -110,12 +107,63 @@ describe('tpl2js: engine', function () {
             done();
         });
     });
+
+    it('should inject the correct template', function (done) {
+        var expected = `angular.module('mod').directive('dir', function () {
+                    return {
+                        scope: {},
+                        template: '<span>basic {{ stuff }}</span>',
+                        link: function (scope, elem, attrs) {
+                        }
+                    }
+                });`;
+
+        tpl2js.inline('/test/fixtures/js/ng.module.basic.js', {}, function (actual) {
+            expect(actual.min()).to.equal(expected.min());
+            done();
+        });
+    });
+
+    it('should inject the correct template: duplicated', function (done) {
+        var expected = `angular.module('mod').directive('dir', function () {
+                            return {
+                            scope: {},
+                            template: '<span>basic {{ stuff }}</span>',
+                            link: function (scope, elem, attrs) {
+                            }
+                        }
+                    });
+
+                    angular.module('mod').directive('dupe', function () {
+                        return {
+                        scope: {},
+                        template: '<div>some child</div>',
+                        link: function (scope, elem, attrs) {
+                        }
+                    }
+                });`;
+
+        tpl2js.inline('/test/fixtures/js/ng.module.duplicated.js', {}, function (actual) {
+            expect(actual.min()).to.equal(expected.min());
+            done();
+        });
+    });
 });
 
-describe('tpl2js: e2e', function () {
-    it('should work/sanity check', function (done) {
+describe('tpl2js', function () {
 
-        tpl2js.inline('/test/fixtures/js/ng.module.duplicated.js', {}, function () {
+    it('should init', function () {
+        expect(tpl2js.inline).to.be.function;
+        expect(engine).to.have.property('source');
+        expect(engine).to.have.property('templates');
+        expect(engine.templates).to.have.property('get');
+        expect(engine.templates).to.have.property('set');
+        expect(engine.source).to.have.property('hash');
+        expect(engine.source).to.have.property('read');
+    });
+
+    it('should work/pass check', function (done) {
+        tpl2js.inline('/test/fixtures/js/ng.module.nested.js', {}, function () {
             done();
         });
     });

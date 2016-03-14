@@ -10,7 +10,7 @@ angular.module('mod').directive('dir', function () {
 angular.module('mod').directive('dupe', function () {
     return {
         scope: {},
-        templateUrl: 'templates/ng.template.nested.parent.html',
+        templateUrl: 'templates/ng.template.nested.child.html',
         link: function (scope, elem, attrs) {
         }
     }
