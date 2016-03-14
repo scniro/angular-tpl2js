@@ -24,17 +24,17 @@ describe('tpl2js: engine', function () {
 
     it('should read the JS file: verify results', function (done) {
 
-        var expected = `angular.module('mod').directive('dir', function () {
-                                return {
-                                    scope: {},
-                                    templateUrl: 'templates/ng.template.basic.html',
-                                    link: function (scope, elem, attrs) {
-                                    }
-                                }
-                            });`
+        var expected = 'angular.module(\'mod\').directive(\'dir\', function () {' +
+            'return {' +
+            'scope: {},' +
+            'templateUrl: \'templates/ng.template.basic.html\',' +
+            'link: function (scope, elem, attrs) {' +
+            '}' +
+            '}' +
+            '});';
 
-        engine.source.read('/test/fixtures/js/ng.module.basic.js').then(function (data) {
-            expect(data.min()).to.equal(expected.min());
+        engine.source.read('/test/fixtures/js/ng.module.basic.js').then(function (actual) {
+            expect(actual.min()).to.equal(expected.min());
             done();
         });
     });
@@ -42,14 +42,14 @@ describe('tpl2js: engine', function () {
     it('should resolve the correct directive template hash: single file', function () {
 
         var base = '/test/fixtures/js'
-        var raw = `angular.module('mod').directive('dir', function () {
-                    return {
-                        scope: {},
-                        templateUrl: 'templates/ng.template.basic.html',
-                        link: function (scope, elem, attrs) {
-                        }
-                    }
-                });`;
+        var raw = 'angular.module(\'mod\').directive(\'dir\', function () {' +
+            'return {' +
+            'scope: {},' +
+            'templateUrl: \'templates/ng.template.basic.html\',' +
+            'link: function (scope, elem, attrs) {' +
+            '}' +
+            '}' +
+            '});';
 
         var expected = [path.normalize('fixtures/templates/ng.template.basic.html')];
         var hash = engine.source.hash(raw, base)
@@ -109,14 +109,14 @@ describe('tpl2js: engine', function () {
     });
 
     it('should inject the correct template', function (done) {
-        var expected = `angular.module('mod').directive('dir', function () {
-                    return {
-                        scope: {},
-                        template: '<span>basic {{ stuff }}</span>',
-                        link: function (scope, elem, attrs) {
-                        }
-                    }
-                });`;
+        var expected = 'angular.module(\'mod\').directive(\'dir\', function () {' +
+            'return {' +
+            'scope: {},' +
+            'template: \'<span>basic {{ stuff }}</span>\',' +
+            'link: function (scope, elem, attrs) {' +
+            '}' +
+            '}' +
+            '});';
 
         tpl2js.inline('/test/fixtures/js/ng.module.basic.js', {}, function (actual) {
             expect(actual.min()).to.equal(expected.min());
@@ -125,23 +125,22 @@ describe('tpl2js: engine', function () {
     });
 
     it('should inject the correct template: duplicated', function (done) {
-        var expected = `angular.module('mod').directive('dir', function () {
-                            return {
-                            scope: {},
-                            template: '<span>basic {{ stuff }}</span>',
-                            link: function (scope, elem, attrs) {
-                            }
-                        }
-                    });
-
-                    angular.module('mod').directive('dupe', function () {
-                        return {
-                        scope: {},
-                        template: '<div>some child</div>',
-                        link: function (scope, elem, attrs) {
-                        }
-                    }
-                });`;
+        var expected = 'angular.module(\'mod\').directive(\'dir\', function () {' +
+            'return {' +
+            'scope: {},' +
+            'template: \'<span>basic {{ stuff }}</span>\',' +
+            'link: function (scope, elem, attrs) {' +
+            '}' +
+            '}' +
+            '});' +
+            'angular.module(\'mod\').directive(\'dupe\', function () {' +
+            'return {' +
+            'scope: {},' +
+            'template: \'<div>some child</div>\',' +
+            'link: function (scope, elem, attrs) {' +
+            '}' +
+            '}' +
+            '});';
 
         tpl2js.inline('/test/fixtures/js/ng.module.duplicated.js', {}, function (actual) {
             expect(actual.min()).to.equal(expected.min());
