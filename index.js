@@ -80,7 +80,6 @@ function TemplateEngine() {
 
 // TODO - solve pathing weirdness
 // TODO - refine poor regex check
-// TODO - create gulp wrapper
 // TODO - identify passed options, likely relayed to html-minifier
 // TODO - identify failure points and return error through callbacks
 // TODO - recurse templating for ng-include support
@@ -91,19 +90,32 @@ function TemplateManager() {
 
     var self = this;
 
-    self.inline = function (target, options, done) { // -- in
+    self.inline = function (input, options, done) { // -- in
 
-        engine.source.read(target).then(function (data) {
+        if (options.gulp) {
 
-            var base = path.dirname(target);
-            var source = engine.source.hash(data, base);
+            var base = '/' + path.dirname(path.relative(__dirname, options.target));
+            var source = engine.source.hash(input, base);
 
             engine.templates.get(source).then(function (transformed) {
                 engine.templates.set(transformed).then(function (output) {
                     done(output); // -- out
                 });
             });
-        });
+
+        } else {
+            engine.source.read(input).then(function (data) {
+
+                var base = path.dirname(input);
+                var source = engine.source.hash(data, base);
+
+                engine.templates.get(source).then(function (transformed) {
+                    engine.templates.set(transformed).then(function (output) {
+                        done(output); // -- out
+                    });
+                });
+            });
+        }
     }
 }
 
