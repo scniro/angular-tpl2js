@@ -3,6 +3,7 @@ var engine = new TemplateEngine();
 var fs = require('fs');
 var minify = require('html-minifier').minify;
 var path = require('path');
+var cheerio = require('cheerio');
 
 function TemplateEngine() {
 
@@ -11,6 +12,16 @@ function TemplateEngine() {
     function readAsync(file, callback) {
         if (file)
             fs.readFile(file, 'utf8', callback);
+    }
+
+    function embedIncludes(template, source) {
+
+        var $ = cheerio.load(template, {decodeEntities: false});
+        var ele = $('[ng-include]').first();
+        var src = path.dirname(source) + '/' + ($(ele).attr('ng-include') || $(ele).attr('src')).replace(/"/g, '').replace(/'/g, '').trim();
+        var include = fs.readFileSync(src, 'utf8');
+        $(ele).append(include);
+        return $.html();
     }
 
     self.source = {
@@ -43,12 +54,25 @@ function TemplateEngine() {
     }
 
     self.templates = {
-        get: function (source) {
+        get: function (source, parseIncludes) {
+
             var deferred = new Promise(function (resolve, reject) {
                 async.map(source.templates, readAsync, function (err, results) {
 
                     results.forEach(function (element, index, arr) {
-                        source.templates[index] = minify(element, {collapseWhitespace: true, removeComments: true}) // minify the markup
+
+                        var $ = cheerio.load(element, {decodeEntities: false});
+                        var t;
+
+                        if ($($.html()).find('[ng-include]').length > 0 && parseIncludes) {
+                            t = embedIncludes($.html(), source.templates[index])
+                            //$ = cheerio.load(transformed, {decodeEntities: false});
+                        }
+
+                        var template = minify((t || $.html()), {collapseWhitespace: true, removeComments: true}) // minify the markup
+                        source.templates[index] = template
+                        resolve(source);
+
                     });
 
                     resolve(source);
@@ -82,7 +106,7 @@ function TemplateEngine() {
 // TODO - refine poor regex check
 // TODO - identify passed options, likely relayed to html-minifier
 // TODO - identify failure points and return error through callbacks
-// TODO - recurse templating for ng-include support
+// TODO - refine templating for ng-include support
 // TODO - travis ci
 // TODO - README
 

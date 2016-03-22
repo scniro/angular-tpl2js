@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "async": "^1.5.2",
+    "cheerio": "^0.20.0",
     "html-minifier": "^1.2.0"
   },
   "scripts": {
