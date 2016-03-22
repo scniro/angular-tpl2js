@@ -127,9 +127,9 @@ function TemplateManager() {
         engine.config.set(config);
 
         // more robust gulp check mayhaps?
-        if (input.contents) {
+        if (typeof input === 'object') {
             var base = '/' + path.dirname(path.relative(__dirname, config.target));
-            var source = engine.source.hash(input, base);
+            var source = engine.source.hash(input.toString(), base);
 
             engine.templates.get(source).then(function (transformed) {
                 engine.templates.set(transformed).then(function (output) {
