@@ -1,13 +1,14 @@
 var async = require('async');
-var engine = new TemplateEngine();
 var fs = require('fs');
 var minify = require('html-minifier').minify;
 var path = require('path');
 var cheerio = require('cheerio');
+var engine;
 
 function TemplateEngine() {
 
     var self = this;
+    var _config = {};
 
     function readAsync(file, callback) {
         if (file)
@@ -22,6 +23,15 @@ function TemplateEngine() {
         var include = fs.readFileSync(src, 'utf8');
         $(ele).append(include);
         return $.html();
+    }
+
+    self.config = {
+        get: function () {
+            return _config;
+        },
+        set: function (config) {
+            _config = config || {};
+        }
     }
 
     self.source = {
@@ -54,25 +64,22 @@ function TemplateEngine() {
     }
 
     self.templates = {
-        get: function (source, parseIncludes) {
+        get: function (source) {
 
             var deferred = new Promise(function (resolve, reject) {
                 async.map(source.templates, readAsync, function (err, results) {
 
                     results.forEach(function (element, index, arr) {
 
-                        var $ = cheerio.load(element, {decodeEntities: false});
-                        var t;
+                        var t, $ = cheerio.load(element, {decodeEntities: false});
 
-                        if ($($.html()).find('[ng-include]').length > 0 && parseIncludes) {
+                        if ($($.html()).find('[ng-include]').length > 0 && _config.includes) {
                             t = embedIncludes($.html(), source.templates[index])
-                            //$ = cheerio.load(transformed, {decodeEntities: false});
                         }
 
                         var template = minify((t || $.html()), {collapseWhitespace: true, removeComments: true}) // minify the markup
                         source.templates[index] = template
                         resolve(source);
-
                     });
 
                     resolve(source);
@@ -104,21 +111,24 @@ function TemplateEngine() {
 
 // TODO - solve pathing weirdness
 // TODO - refine poor regex check
-// TODO - identify passed options, likely relayed to html-minifier
+// TODO - relay options to html-minifier
 // TODO - identify failure points and return error through callbacks
 // TODO - refine templating for ng-include support
-// TODO - travis ci
 // TODO - README
+// TODO - cli
 
 function TemplateManager() {
 
     var self = this;
 
-    self.inline = function (input, options, done) { // -- in
+    self.inline = function (input, config, done) { // -- in
 
-        if (options.gulp) {
+        engine = new TemplateEngine();
+        engine.config.set(config);
 
-            var base = '/' + path.dirname(path.relative(__dirname, options.target));
+        // more robust gulp check mayhaps?
+        if (input.contents) {
+            var base = '/' + path.dirname(path.relative(__dirname, config.target));
             var source = engine.source.hash(input, base);
 
             engine.templates.get(source).then(function (transformed) {
@@ -126,7 +136,6 @@ function TemplateManager() {
                     done(output); // -- out
                 });
             });
-
         } else {
             engine.source.read(input).then(function (data) {
 
@@ -144,4 +153,4 @@ function TemplateManager() {
 }
 
 module.exports = new TemplateManager();
-module.exports.engine = engine;
+module.exports.engine = new TemplateEngine();

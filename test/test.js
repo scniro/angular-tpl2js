@@ -103,7 +103,7 @@ describe('tpl2js: engine', function () {
         var hash = {templates: [__dirname + '/fixtures/templates/ng.template.basic.html', __dirname + '/fixtures/templates/ng.template.nested.parent.html']};
 
         engine.templates.get(hash).then(function (transformed) {
-            //expect(transformed.templates).to.deep.equal(expected);
+            expect(transformed.templates).to.deep.equal(expected);
             done();
         });
     });
@@ -113,8 +113,10 @@ describe('tpl2js: engine', function () {
         var expected = ['<span>basic {{ stuff }}</span>', '<div><span>some parent</span><div ng-include="" src="\'ng.template.nested.child.html\'"><div>some child</div></div></div>']
         var hash = {templates: [__dirname + '/fixtures/templates/ng.template.basic.html', __dirname + '/fixtures/templates/ng.template.nested.parent.html']};
 
-        engine.templates.get(hash, true).then(function (transformed) {
-            //expect(transformed.templates).to.deep.equal(expected);
+        engine.config.set({includes: true});
+
+        engine.templates.get(hash).then(function (transformed) {
+            expect(transformed.templates).to.deep.equal(expected);
             done();
         });
     });
