@@ -123,6 +123,32 @@ describe('tpl2js: engine', function () {
         });
     });
 
+    it('should retrieve the templates: hash passed: correctly minify templates: includes=true, multiple parallel includes', function (done) {
+
+        var expected = ['<div><span>something</span><div ng-include="" src="\'ng.template.nested.child.html\'"><div>some child</div></div><span>something</span><div ng-include="" src="\'ng.template.nested.child.html\'"><div>some child</div></div><span>something</span><div ng-include="" src="\'ng.template.nested.child.html\'"><div>some child</div></div></div>']
+        var hash = {templates: [__dirname + '/fixtures/templates/ng.template.includes.parallel.html']};
+
+        engine.config.set({includes: true});
+
+        engine.templates.get(hash).then(function (transformed) {
+            expect(transformed.templates).to.deep.equal(expected);
+            done();
+        });
+    });
+
+    it('should retrieve the templates: hash passed: correctly minify templates: includes=true, multiple staggered includes', function (done) {
+
+        var expected = ['<div><span>something</span><div ng-include="" src="\'ng.template.nested.child.html\'"><div>some child</div></div><aside><div ng-include="" src="\'ng.template.nested.child.html\'"><div>some child</div></div></aside><footer><div><div ng-include="" src="\'ng.template.nested.child.html\'"><div>some child</div></div></div></footer></div>']
+        var hash = {templates: [__dirname + '/fixtures/templates/ng.template.includes.staggered.html']};
+
+        engine.config.set({includes: true});
+
+        engine.templates.get(hash).then(function (transformed) {
+            expect(transformed.templates).to.deep.equal(expected);
+            done();
+        });
+    });
+
     it('should inject the correct template', function (done) {
         var expected = 'angular.module(\'mod\').directive(\'dir\', function () {' +
             'return {' +
@@ -163,13 +189,13 @@ describe('tpl2js: engine', function () {
         });
     });
 
-    it('should get/set the configuration', function () {
+    it('should set the configuration', function () {
         var expected = {
             inline: true,
             HTMLMinifier: {
                 collapseWhitespace: true,
                 removeComments: true
-            },
+            }
         }
 
         engine.config.set({
@@ -178,7 +204,27 @@ describe('tpl2js: engine', function () {
 
         var actual = engine.config.get();
         expect(actual).to.deep.equal(expected);
-    })
+    });
+
+    it('should set the configuration: merge defaults', function () {
+        var expected = {
+            inline: true,
+            HTMLMinifier: {
+                collapseWhitespace: true,
+                removeComments: false
+            }
+        }
+
+        engine.config.set({
+            inline: true,
+            HTMLMinifier: {
+                removeComments: false
+            }
+        });
+
+        var actual = engine.config.get();
+        expect(actual).to.deep.equal(expected);
+    });
 });
 
 describe('tpl2js', function () {

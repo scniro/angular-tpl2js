@@ -29,10 +29,13 @@ function TemplateEngine() {
     function embedIncludes(template, source) {
 
         var $ = cheerio.load(template, {decodeEntities: false});
-        var ele = $('[ng-include]').first();
-        var src = path.dirname(source) + '/' + ($(ele).attr('ng-include') || $(ele).attr('src')).replace(/"/g, '').replace(/'/g, '').trim();
-        var include = fs.readFileSync(src, 'utf8');
-        $(ele).append(include);
+
+        $('[ng-include]').each(function (i, ele) {
+            var src = path.dirname(source) + '/' + ($(ele).attr('ng-include') || $(ele).attr('src')).replace(/"/g, '').replace(/'/g, '').trim();
+            var include = fs.readFileSync(src, 'utf8');
+            $(ele).append(include);
+        });
+
         return $.html();
     }
 
@@ -48,7 +51,7 @@ function TemplateEngine() {
             }
 
             _config = config || {};
-            _config.HTMLMinifier = merge((config.HTMLMinifier || {}), HTMLMinifier);
+            _config.HTMLMinifier = merge(HTMLMinifier, (config.HTMLMinifier || {}));
         }
     }
 
@@ -128,9 +131,9 @@ function TemplateEngine() {
 }
 
 // TODO - solve pathing weirdness
-// TODO - refine poor regex check
-// TODO - identify failure points and return error through callbacks
-// TODO - refine templating for ng-include support
+// TODO - refine templateUrl regex check
+// TODO - identify failure points and return errors
+// TODO - recurse ng-include templates
 // TODO - README
 
 function TemplateManager() {
