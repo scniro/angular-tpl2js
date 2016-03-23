@@ -102,6 +102,8 @@ describe('tpl2js: engine', function () {
         var expected = ['<span>basic {{ stuff }}</span>', '<div><span>some parent</span><div ng-include="" src="\'ng.template.nested.child.html\'"></div></div>']
         var hash = {templates: [__dirname + '/fixtures/templates/ng.template.basic.html', __dirname + '/fixtures/templates/ng.template.nested.parent.html']};
 
+        engine.config.set({includes: false});
+
         engine.templates.get(hash).then(function (transformed) {
             expect(transformed.templates).to.deep.equal(expected);
             done();
@@ -160,6 +162,23 @@ describe('tpl2js: engine', function () {
             done();
         });
     });
+
+    it('should get/set the configuration', function () {
+        var expected = {
+            inline: true,
+            HTMLMinifier: {
+                collapseWhitespace: true,
+                removeComments: true
+            },
+        }
+
+        engine.config.set({
+            inline: true // false default
+        });
+
+        var actual = engine.config.get();
+        expect(actual).to.deep.equal(expected);
+    })
 });
 
 describe('tpl2js', function () {
@@ -172,6 +191,8 @@ describe('tpl2js', function () {
         expect(engine.templates).to.have.property('set');
         expect(engine.source).to.have.property('hash');
         expect(engine.source).to.have.property('read');
+        expect(engine.config).to.have.property('get');
+        expect(engine.config).to.have.property('set');
     });
 
     it('should work/pass check', function (done) {

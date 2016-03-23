@@ -15,6 +15,17 @@ function TemplateEngine() {
             fs.readFile(file, 'utf8', callback);
     }
 
+    function merge(obj1, obj2) {
+        var obj3 = {};
+        for (var attrname in obj1) {
+            obj3[attrname] = obj1[attrname];
+        }
+        for (var attrname in obj2) {
+            obj3[attrname] = obj2[attrname];
+        }
+        return obj3;
+    }
+
     function embedIncludes(template, source) {
 
         var $ = cheerio.load(template, {decodeEntities: false});
@@ -30,7 +41,14 @@ function TemplateEngine() {
             return _config;
         },
         set: function (config) {
+
+            var HTMLMinifier = {
+                collapseWhitespace: true,
+                removeComments: true
+            }
+
             _config = config || {};
+            _config.HTMLMinifier = merge((config.HTMLMinifier || {}), HTMLMinifier);
         }
     }
 
@@ -77,7 +95,7 @@ function TemplateEngine() {
                             t = embedIncludes($.html(), source.templates[index])
                         }
 
-                        var template = minify((t || $.html()), {collapseWhitespace: true, removeComments: true}) // minify the markup
+                        var template = minify((t || $.html()), _config.HTMLMinifier) // minify the markup
                         source.templates[index] = template
                         resolve(source);
                     });
@@ -111,11 +129,9 @@ function TemplateEngine() {
 
 // TODO - solve pathing weirdness
 // TODO - refine poor regex check
-// TODO - relay options to html-minifier
 // TODO - identify failure points and return error through callbacks
 // TODO - refine templating for ng-include support
 // TODO - README
-// TODO - cli
 
 function TemplateManager() {
 
