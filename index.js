@@ -119,7 +119,7 @@ function TemplateEngine() {
                     var match = (element.match(/(?!,)templateUrl(.*)$/gm));
 
                     if (match)
-                        arr[index] = arr[index].replace(/(?!,)templateUrl(.*),$/gm, 'template: \'' + transformed.templates.shift().replace(/'/g, "\\'") + '\',')
+                        arr[index] = arr[index].replace(/(?!,)templateUrl(.*)(?!,)$/gm, 'template: \'' + transformed.templates.shift().replace(/'/g, "\\'") + '\',')
                 });
 
                 resolve(parts.join(''));
@@ -130,10 +130,10 @@ function TemplateEngine() {
     }
 }
 
-// TODO - solve pathing weirdness
+// TODO - solve pathing madness
 // TODO - refine templateUrl regex check
 // TODO - identify failure points and return errors
-// TODO - recurse ng-include templates
+// TODO - recurse deeply nested ng-include templates
 // TODO - README
 
 function TemplateManager() {
