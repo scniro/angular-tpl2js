@@ -189,6 +189,23 @@ describe('tpl2js: engine', function () {
         });
     });
 
+    it('should inject the template,templateUrl defined last on directive object', function (done) {
+
+            var expected = 'angular.module(\'mod\').directive(\'dir\', function () {' +
+                'return {' +
+                'scope: {},' +
+                'link: function (scope, elem, attrs) {' +
+                '},' +
+                'template: \'<span>basic {{ stuff }}</span>\',' +
+                '}' +
+                '});';
+
+        tpl2js.inline('/test/fixtures/js/ng.module.variation.js', {}, function (actual) {
+            expect(actual.min()).to.equal(expected.min());
+            done();
+        });
+    });
+
     it('should set the configuration', function () {
         var expected = {
             inline: true,
