@@ -90,20 +90,24 @@ function TemplateEngine() {
             var deferred = new Promise(function (resolve, reject) {
                 async.map(source.templates, readAsync, function (err, results) {
 
-                    results.forEach(function (element, index, arr) {
+                    if (err)
+                        reject('template not found: ' + err.path);
+                    else {
+                        results.forEach(function (element, index, arr) {
 
-                        var t, $ = cheerio.load(element, {decodeEntities: false});
+                            var t, $ = cheerio.load(element, {decodeEntities: false});
 
-                        if ($($.html()).find('[ng-include]').length > 0 && _config.includes) {
-                            t = embedIncludes($.html(), source.templates[index])
-                        }
+                            if ($($.html()).find('[ng-include]').length > 0 && _config.includes) {
+                                t = embedIncludes($.html(), source.templates[index])
+                            }
 
-                        var template = minify((t || $.html()), _config.HTMLMinifier) // minify the markup
-                        source.templates[index] = template
+                            var template = minify((t || $.html()), _config.HTMLMinifier) // minify the markup
+                            source.templates[index] = template
+                            resolve(source);
+                        });
+
                         resolve(source);
-                    });
-
-                    resolve(source);
+                    }
                 });
             });
 
@@ -132,6 +136,7 @@ function TemplateEngine() {
 
 // TODO - solve pathing madness
 // TODO - refine templateUrl regex check
+// TODO - find way to deal with no good template hits
 // TODO - identify failure points and return errors
 // TODO - recurse deeply nested ng-include templates
 // TODO - README
@@ -165,6 +170,8 @@ function TemplateManager() {
                     engine.templates.set(transformed).then(function (output) {
                         done(output); // -- out
                     });
+                }, function (error) {
+                    done(error);
                 });
             });
         }
