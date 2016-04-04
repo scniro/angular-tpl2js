@@ -242,6 +242,17 @@ describe('tpl2js: engine', function () {
         var actual = engine.config.get();
         expect(actual).to.deep.equal(expected);
     });
+
+    it('should gracefully abort on a template that is not found', function (done) { // potentially retrn error?
+
+        var i = 0;
+
+        tpl2js.inline('/test/fixtures/js/ng.module.404.js', {}, function (actual) {
+            i += 1;
+            expect(i).to.equal(1);
+            done();
+        });
+    })
 });
 
 describe('tpl2js', function () {
