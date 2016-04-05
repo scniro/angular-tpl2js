@@ -134,9 +134,8 @@ function TemplateEngine() {
     }
 }
 
-// TODO - solve pathing madness
+// TODO - pathing madness
 // TODO - refine templateUrl regex check
-// TODO - find way to deal with no good template hits
 // TODO - identify failure points and return errors
 // TODO - recurse deeply nested ng-include templates
 // TODO - README
@@ -168,7 +167,7 @@ function TemplateManager() {
 
                 engine.templates.get(source).then(function (transformed) {
                     engine.templates.set(transformed).then(function (output) {
-                        done(output); // -- out
+                        done(null, output); // -- out
                     });
                 }, function (error) {
                     done(error);

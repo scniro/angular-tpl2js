@@ -159,7 +159,7 @@ describe('tpl2js: engine', function () {
             '}' +
             '});';
 
-        tpl2js.inline('/test/fixtures/js/ng.module.basic.js', {}, function (actual) {
+        tpl2js.inline('/test/fixtures/js/ng.module.basic.js', {}, function (err, actual) {
             expect(actual.min()).to.equal(expected.min());
             done();
         });
@@ -183,7 +183,7 @@ describe('tpl2js: engine', function () {
             '}' +
             '});';
 
-        tpl2js.inline('/test/fixtures/js/ng.module.duplicated.js', {}, function (actual) {
+        tpl2js.inline('/test/fixtures/js/ng.module.duplicated.js', {}, function (err, actual) {
             expect(actual.min()).to.equal(expected.min());
             done();
         });
@@ -200,7 +200,7 @@ describe('tpl2js: engine', function () {
                 '}' +
                 '});';
 
-        tpl2js.inline('/test/fixtures/js/ng.module.variation.js', {}, function (actual) {
+        tpl2js.inline('/test/fixtures/js/ng.module.variation.js', {}, function (err, actual) {
             expect(actual.min()).to.equal(expected.min());
             done();
         });
@@ -243,16 +243,17 @@ describe('tpl2js: engine', function () {
         expect(actual).to.deep.equal(expected);
     });
 
-    it('should gracefully abort on a template that is not found', function (done) { // potentially retrn error?
+    it('should gracefully abort on a template that is not found - error exist', function (done) { // potentially retrn error?
 
         var i = 0;
 
-        tpl2js.inline('/test/fixtures/js/ng.module.404.js', {}, function (actual) {
+        tpl2js.inline('/test/fixtures/js/ng.module.404.js', {}, function (err, actual) {
             i += 1;
+            expect(err).to.exist;
             expect(i).to.equal(1);
             done();
         });
-    })
+    });
 });
 
 describe('tpl2js', function () {
@@ -270,7 +271,7 @@ describe('tpl2js', function () {
     });
 
     it('should work/pass check', function (done) {
-        tpl2js.inline('/test/fixtures/js/ng.module.nested.js', {}, function () {
+        tpl2js.inline('/test/fixtures/js/ng.module.nested.js', {}, function (err, actual) {
             done();
         });
     });
