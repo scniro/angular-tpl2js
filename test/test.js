@@ -97,12 +97,12 @@ describe('tpl2js: engine', function () {
         });
     });
 
-    it('should retrieve the templates: hash passed: correctly minify templates: includes=false', function (done) {
+    it('should retrieve the templates: hash passed: correctly minify templates: include=false', function (done) {
 
         var expected = ['<span>basic {{ stuff }}</span>', '<div><span>some parent</span><div ng-include="" src="\'ng.template.nested.child.html\'"></div></div>']
         var hash = {templates: [__dirname + '/fixtures/templates/ng.template.basic.html', __dirname + '/fixtures/templates/ng.template.nested.parent.html']};
 
-        engine.config.set({includes: false});
+        engine.config.set({});
 
         engine.templates.get(hash).then(function (transformed) {
             expect(transformed.templates).to.deep.equal(expected);
@@ -110,12 +110,12 @@ describe('tpl2js: engine', function () {
         });
     });
 
-    it('should retrieve the templates: hash passed: correctly minify templates: includes=true', function (done) {
+    it('should retrieve the templates: hash passed: correctly minify templates: include=true', function (done) {
 
         var expected = ['<span>basic {{ stuff }}</span>', '<div><span>some parent</span><div ng-include="" src="\'ng.template.nested.child.html\'"><div>some child</div></div></div>']
         var hash = {templates: [__dirname + '/fixtures/templates/ng.template.basic.html', __dirname + '/fixtures/templates/ng.template.nested.parent.html']};
 
-        engine.config.set({includes: true});
+        engine.config.set({include: true});
 
         engine.templates.get(hash).then(function (transformed) {
             expect(transformed.templates).to.deep.equal(expected);
@@ -123,12 +123,12 @@ describe('tpl2js: engine', function () {
         });
     });
 
-    it('should retrieve the templates: hash passed: correctly minify templates: includes=true, multiple parallel includes', function (done) {
+    it('should retrieve the templates: hash passed: correctly minify templates: include=true, multiple parallel include', function (done) {
 
         var expected = ['<div><span>something</span><div ng-include="" src="\'ng.template.nested.child.html\'"><div>some child</div></div><span>something</span><div ng-include="" src="\'ng.template.nested.child.html\'"><div>some child</div></div><span>something</span><div ng-include="" src="\'ng.template.nested.child.html\'"><div>some child</div></div></div>']
         var hash = {templates: [__dirname + '/fixtures/templates/ng.template.includes.parallel.html']};
 
-        engine.config.set({includes: true});
+        engine.config.set({include: true});
 
         engine.templates.get(hash).then(function (transformed) {
             expect(transformed.templates).to.deep.equal(expected);
@@ -141,7 +141,7 @@ describe('tpl2js: engine', function () {
         var expected = ['<div><span>something</span><div ng-include="" src="\'ng.template.nested.child.html\'"><div>some child</div></div><aside><div ng-include="" src="\'ng.template.nested.child.html\'"><div>some child</div></div></aside><footer><div><div ng-include="" src="\'ng.template.nested.child.html\'"><div>some child</div></div></div></footer></div>']
         var hash = {templates: [__dirname + '/fixtures/templates/ng.template.includes.staggered.html']};
 
-        engine.config.set({includes: true});
+        engine.config.set({include: true});
 
         engine.templates.get(hash).then(function (transformed) {
             expect(transformed.templates).to.deep.equal(expected);
@@ -191,14 +191,14 @@ describe('tpl2js: engine', function () {
 
     it('should inject the template,templateUrl defined last on directive object', function (done) {
 
-            var expected = 'angular.module(\'mod\').directive(\'dir\', function () {' +
-                'return {' +
-                'scope: {},' +
-                'link: function (scope, elem, attrs) {' +
-                '},' +
-                'template: \'<span>basic {{ stuff }}</span>\',' +
-                '}' +
-                '});';
+        var expected = 'angular.module(\'mod\').directive(\'dir\', function () {' +
+            'return {' +
+            'scope: {},' +
+            'link: function (scope, elem, attrs) {' +
+            '},' +
+            'template: \'<span>basic {{ stuff }}</span>\',' +
+            '}' +
+            '});';
 
         tpl2js.inline('/test/fixtures/js/ng.module.variation.js', {}, function (err, actual) {
             expect(actual.min()).to.equal(expected.min());
@@ -208,7 +208,7 @@ describe('tpl2js: engine', function () {
 
     it('should set the configuration', function () {
         var expected = {
-            inline: true,
+            include: true,
             HTMLMinifier: {
                 collapseWhitespace: true,
                 removeComments: true
@@ -216,7 +216,7 @@ describe('tpl2js: engine', function () {
         }
 
         engine.config.set({
-            inline: true // false default
+            include: true // false default
         });
 
         var actual = engine.config.get();
@@ -225,7 +225,7 @@ describe('tpl2js: engine', function () {
 
     it('should set the configuration: merge defaults', function () {
         var expected = {
-            inline: true,
+            include: true,
             HTMLMinifier: {
                 collapseWhitespace: true,
                 removeComments: false
@@ -233,7 +233,7 @@ describe('tpl2js: engine', function () {
         }
 
         engine.config.set({
-            inline: true,
+            include: true,
             HTMLMinifier: {
                 removeComments: false
             }
@@ -272,6 +272,12 @@ describe('tpl2js', function () {
 
     it('should work/pass check', function (done) {
         tpl2js.inline('/test/fixtures/js/ng.module.nested.js', {}, function (err, actual) {
+            done();
+        });
+    });
+
+    it('should work/pass check: no config supplied', function (done) {
+        tpl2js.inline('/test/fixtures/js/ng.module.nested.js', function (err, actual) {
             done();
         });
     });

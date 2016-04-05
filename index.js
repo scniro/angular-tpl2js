@@ -52,6 +52,7 @@ function TemplateEngine() {
 
             _config = config || {};
             _config.HTMLMinifier = merge(HTMLMinifier, (config.HTMLMinifier || {}));
+            _config.include = config.include || false;
         }
     }
 
@@ -97,7 +98,7 @@ function TemplateEngine() {
 
                             var t, $ = cheerio.load(element, {decodeEntities: false});
 
-                            if ($($.html()).find('[ng-include]').length > 0 && _config.includes) {
+                            if ($($.html()).find('[ng-include]').length > 0 && _config.include) {
                                 t = embedIncludes($.html(), source.templates[index])
                             }
 
@@ -138,7 +139,6 @@ function TemplateEngine() {
 // TODO - refine templateUrl regex check
 // TODO - identify failure points and return errors
 // TODO - recurse deeply nested ng-include templates
-// TODO - README
 
 function TemplateManager() {
 
@@ -147,17 +147,25 @@ function TemplateManager() {
     self.inline = function (input, config, done) { // -- in
 
         engine = new TemplateEngine();
-        engine.config.set(config);
+
+        if(arguments.length === 2 && Object.prototype.toString.call(arguments[1]) == '[object Function]') {
+            done = config;
+        } else {
+            engine.config.set(config);
+        }
 
         // more robust gulp check mayhaps?
         if (typeof input === 'object') {
+
             var base = '/' + path.dirname(path.relative(__dirname, config.target));
             var source = engine.source.hash(input.toString(), base);
 
             engine.templates.get(source).then(function (transformed) {
                 engine.templates.set(transformed).then(function (output) {
-                    done(output); // -- out
+                    done(null, output); // -- out
                 });
+            }, function (error) {
+                done(error);
             });
         } else {
             engine.source.read(input).then(function (data) {
