@@ -19,7 +19,8 @@ npm install angular-tpl2js --save-dev
 var tpl2js = require('angular-tpl2js');
 
 tpl2js.inline('/js/directive.js', function (err, result) {
-    // result = directive.js with template inline
+
+    // directive.js with inline template
 });
 ```
 
@@ -36,4 +37,14 @@ var config = {
         removeComments: true
     }
 }
+```
+
+***
+
+```javascript
+
+tpl2js.inline('/js/directive.js', {include: true}, function (err, result) {
+
+    // directive.js with inline template: ng-include parsed
+});
 ```
