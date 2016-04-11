@@ -4,6 +4,9 @@
 [![NPM Version](https://img.shields.io/npm/v/angular-tpl2js.svg?style=flat-square)](https://www.npmjs.com/package/angular-tpl2js)
 [![Dependency Status](https://img.shields.io/david/scniro/angular-tpl2js.svg?label=deps&style=flat-square)](https://david-dm.org/scniro/angular-tpl2js)
 [![devDependency Status](https://img.shields.io/david/dev/scniro/angular-tpl2js.svg?label=devDeps&style=flat-square)](https://david-dm.org/scniro/angular-tpl2js#info=devDependencies)
+[![Coverage](https://img.shields.io/coveralls/scniro/angular-tpl2js.svg?style=flat-square)](https://coveralls.io/github/scniro/angular-tpl2js)
+[![Climate](https://img.shields.io/codeclimate/github/scniro/angular-tpl2js.svg?label=climate&style=flat-square)](https://codeclimate.com/github/scniro/angular-tpl2js)
+
 
 ## Install
 

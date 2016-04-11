@@ -272,12 +272,16 @@ describe('tpl2js', function () {
 
     it('should work/pass check', function (done) {
         tpl2js.inline('/test/fixtures/js/ng.module.nested.js', {}, function (err, actual) {
+            expect(err).to.be.null;
+            expect(actual).to.exist;
             done();
         });
     });
 
     it('should work/pass check: no config supplied', function (done) {
         tpl2js.inline('/test/fixtures/js/ng.module.nested.js', function (err, actual) {
+            expect(err).to.be.null;
+            expect(actual).to.exist;
             done();
         });
     });

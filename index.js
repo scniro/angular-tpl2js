@@ -148,6 +148,7 @@ function TemplateManager() {
 
         engine = new TemplateEngine();
 
+        // shift optional config argument
         if(arguments.length === 2 && Object.prototype.toString.call(arguments[1]) == '[object Function]') {
             done = config;
         } else {
