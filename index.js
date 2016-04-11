@@ -17,11 +17,11 @@ function TemplateEngine() {
 
     function merge(obj1, obj2) {
         var obj3 = {};
-        for (var attrname in obj1) {
-            obj3[attrname] = obj1[attrname];
+        for (var a1 in obj1) {
+            obj3[a1] = obj1[a1];
         }
-        for (var attrname in obj2) {
-            obj3[attrname] = obj2[attrname];
+        for (var a2 in obj2) {
+            obj3[a2] = obj2[a2];
         }
         return obj3;
     }
@@ -135,11 +135,6 @@ function TemplateEngine() {
     }
 }
 
-// TODO - pathing madness
-// TODO - refine templateUrl regex check
-// TODO - identify failure points and return errors
-// TODO - recurse deeply nested ng-include templates
-
 function TemplateManager() {
 
     var self = this;
@@ -149,38 +144,33 @@ function TemplateManager() {
         engine = new TemplateEngine();
 
         // shift optional config argument
-        if(arguments.length === 2 && Object.prototype.toString.call(arguments[1]) == '[object Function]') {
+        if (arguments.length === 2 && Object.prototype.toString.call(arguments[1]) === '[object Function]') {
             done = config;
         } else {
             engine.config.set(config);
         }
 
-        // more robust gulp check mayhaps?
-        if (typeof input === 'object') {
+        var base, css;
 
-            var base = '/' + path.dirname(path.relative(__dirname, config.target));
-            var source = engine.source.hash(input.toString(), base);
-
-            engine.templates.get(source).then(function (transformed) {
+        function run(css) {
+            engine.templates.get(css).then(function (transformed) {
                 engine.templates.set(transformed).then(function (output) {
                     done(null, output); // -- out
                 });
             }, function (error) {
                 done(error);
             });
+        }
+
+        if (input instanceof Buffer) {
+            base = '/' + path.dirname(path.relative(__dirname, config.target));
+            css = engine.source.hash(input.toString(), base);
+            run(css);
         } else {
             engine.source.read(input).then(function (data) {
-
-                var base = path.dirname(input);
-                var source = engine.source.hash(data, base);
-
-                engine.templates.get(source).then(function (transformed) {
-                    engine.templates.set(transformed).then(function (output) {
-                        done(null, output); // -- out
-                    });
-                }, function (error) {
-                    done(error);
-                });
+                base = path.dirname(input);
+                css = engine.source.hash(data, base);
+                run(css);
             });
         }
     }

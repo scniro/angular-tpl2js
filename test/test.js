@@ -3,6 +3,8 @@ var engine = require('..').engine;
 var expect = chai.expect;
 var path = require('path');
 var tpl2js = require('..');
+var File = require('vinyl');
+var fs = require('fs');
 
 chai.should();
 
@@ -250,6 +252,22 @@ describe('tpl2js: engine', function () {
         tpl2js.inline('/test/fixtures/js/ng.module.404.js', {}, function (err, actual) {
             i += 1;
             expect(err).to.exist;
+            expect(i).to.equal(1);
+            done();
+        });
+    });
+
+    it('should execute logic regarded to buffer check', function () {
+
+        var i = 0;
+
+        var js = new File({
+            path: '/nomatter',
+            contents: new Buffer('angular.module(\'mod\').directive(\'dir\', function () { return { scope: {}, templateUrl: \'templates/ng.template.basic.html\', link: function (scope, elem, attrs) { } } });')
+        });
+
+        tpl2js.inline(js.contents, {target: '/nomatter'}, function (err, actual) {
+            i += 1;
             expect(i).to.equal(1);
             done();
         });
