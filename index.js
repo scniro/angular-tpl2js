@@ -30,11 +30,21 @@ function TemplateEngine() {
 
         var $ = cheerio.load(template, {decodeEntities: false});
 
-        $('[ng-include]').each(function (i, ele) {
-            var src = path.dirname(source) + '/' + ($(ele).attr('ng-include') || $(ele).attr('src')).replace(/"/g, '').replace(/'/g, '').trim();
-            var include = fs.readFileSync(src, 'utf8');
-            $(ele).append(include);
-        });
+        function recurse() {
+            $('[ng-include]').each(function (i, ele) {
+                var src = path.dirname(source) + '/' + ($(ele).attr('ng-include') || $(ele).attr('src')).replace(/"/g, '').replace(/'/g, '').trim();
+                var include = fs.readFileSync(src, 'utf8');
+
+                $(ele).append(include);
+                $(this).removeAttr('ng-include')
+
+                if ($(ele).find('[ng-include]').length > 0) {
+                    recurse();
+                }
+            });
+        }
+
+        recurse();
 
         return $.html();
     }
@@ -157,8 +167,8 @@ function TemplateManager() {
                 engine.templates.set(transformed).then(function (output) {
                     done(null, output); // -- out
                 });
-            }, function (error) {
-                done(error);
+            }, function (err) {
+                done(err);
             });
         }
 

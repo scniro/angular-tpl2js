@@ -114,7 +114,7 @@ describe('tpl2js: engine', function () {
 
     it('should retrieve the templates: hash passed: correctly minify templates: include=true', function (done) {
 
-        var expected = ['<span>basic {{ stuff }}</span>', '<div><span>some parent</span><div ng-include="" src="\'ng.template.nested.child.html\'"><div>some child</div></div></div>']
+        var expected = ['<span>basic {{ stuff }}</span>', '<div><span>some parent</span><div src="\'ng.template.nested.child.html\'"><div>some child</div></div></div>']
         var hash = {templates: [__dirname + '/fixtures/templates/ng.template.basic.html', __dirname + '/fixtures/templates/ng.template.nested.parent.html']};
 
         engine.config.set({include: true});
@@ -127,7 +127,7 @@ describe('tpl2js: engine', function () {
 
     it('should retrieve the templates: hash passed: correctly minify templates: include=true, multiple parallel include', function (done) {
 
-        var expected = ['<div><span>something</span><div ng-include="" src="\'ng.template.nested.child.html\'"><div>some child</div></div><span>something</span><div ng-include="" src="\'ng.template.nested.child.html\'"><div>some child</div></div><span>something</span><div ng-include="" src="\'ng.template.nested.child.html\'"><div>some child</div></div></div>']
+        var expected = ['<div><span>something</span><div src="\'ng.template.nested.child.html\'"><div>some child</div></div><span>something</span><div src="\'ng.template.nested.child.html\'"><div>some child</div></div><span>something</span><div src="\'ng.template.nested.child.html\'"><div>some child</div></div></div>']
         var hash = {templates: [__dirname + '/fixtures/templates/ng.template.includes.parallel.html']};
 
         engine.config.set({include: true});
@@ -140,8 +140,21 @@ describe('tpl2js: engine', function () {
 
     it('should retrieve the templates: hash passed: correctly minify templates: includes=true, multiple staggered includes', function (done) {
 
-        var expected = ['<div><span>something</span><div ng-include="" src="\'ng.template.nested.child.html\'"><div>some child</div></div><aside><div ng-include="" src="\'ng.template.nested.child.html\'"><div>some child</div></div></aside><footer><div><div ng-include="" src="\'ng.template.nested.child.html\'"><div>some child</div></div></div></footer></div>']
+        var expected = ['<div><span>something</span><div src="\'ng.template.nested.child.html\'"><div>some child</div></div><aside><div src="\'ng.template.nested.child.html\'"><div>some child</div></div></aside><footer><div><div src="\'ng.template.nested.child.html\'"><div>some child</div></div></div></footer></div>']
         var hash = {templates: [__dirname + '/fixtures/templates/ng.template.includes.staggered.html']};
+
+        engine.config.set({include: true});
+
+        engine.templates.get(hash).then(function (transformed) {
+            expect(transformed.templates).to.deep.equal(expected);
+            done();
+        });
+    });
+
+    it('should retrieve the templates: hash passed: correctly minify templates: includes=true, deeply includes', function (done) {
+
+        var expected = ['<div><span>something</span><div src="\'ng.template.includes.child.html\'"><div><p>paragraph</p><div src="\'ng.template.includes.grandchild.html\'"><div>grandchild</div></div></div></div></div>']
+        var hash = {templates: [__dirname + '/fixtures/templates/ng.template.includes.parent.html']};
 
         engine.config.set({include: true});
 

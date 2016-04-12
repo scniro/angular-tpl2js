@@ -1,6 +1,6 @@
 {
   "name": "angular-tpl2js",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Convert Angular templates to inline JavaScript",
   "files": [
     "index.js"
