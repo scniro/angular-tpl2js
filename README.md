@@ -1,6 +1,6 @@
 # angular-tpl2js
 
-> Inject AngularJS directive templates to inline JavaScript
+> Inject AngularJS directive templates as inline JavaScript
 
 [![Build Status](https://img.shields.io/travis/scniro/angular-tpl2js.svg?style=flat-square)](https://travis-ci.org/scniro/angular-tpl2js)
 [![NPM Version](https://img.shields.io/npm/v/angular-tpl2js.svg?style=flat-square)](https://www.npmjs.com/package/angular-tpl2js)

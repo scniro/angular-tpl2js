@@ -166,9 +166,11 @@ function TemplateManager() {
             engine.templates.get(css).then(function (transformed) {
                 engine.templates.set(transformed).then(function (output) {
                     done(null, output); // -- out
+                }, function(err){
+                    done(err) // -- templates.set promise error
                 });
             }, function (err) {
-                done(err);
+                done(err); // -- templates.get promise error
             });
         }
 
