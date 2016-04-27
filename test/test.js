@@ -285,6 +285,42 @@ describe('tpl2js: engine', function () {
             done();
         });
     });
+
+    it('should have no impact on directive file with double quote stynax usage', function (done) {
+
+        var expected = 'angular.module("mod").directive("dir", function () {' +
+            'return {' +
+            'scope: {},' +
+            'template: \'<span>basic {{ stuff }}</span>\',' +
+            'link: function (scope, elem, attrs) {' +
+            '}' +
+            '}' +
+            '});';
+
+        tpl2js.inline('/test/fixtures/js/ng.module.doublequotes.js', {}, function (err, actual) {
+            expect(actual.min()).to.equal(expected.min());
+            done();
+        });
+    });
+
+    it('should have no impact on named function link directive', function (done) {
+        var expected =
+            'function link(){' +
+            'console.log(\'link\');' +
+            '}' +
+            'angular.module(\'mod\').directive(\'dir\', function () {' +
+            'return {' +
+            'scope: {},' +
+            'template: \'<span>basic {{ stuff }}</span>\',' +
+            'link: link' +
+            '}' +
+            '});';
+
+        tpl2js.inline('/test/fixtures/js/ng.module.namedfunction.js', {}, function (err, actual) {
+            expect(actual.min()).to.equal(expected.min());
+            done();
+        });
+    });
 });
 
 describe('tpl2js', function () {
