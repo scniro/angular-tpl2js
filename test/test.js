@@ -321,6 +321,19 @@ describe('tpl2js: engine', function () {
             done();
         });
     });
+
+    it('should gracefully abort on error encountered when setting a template - error exist', function (done) {
+
+        var js = new File({
+            path: '/nomatter',
+            contents: new Buffer('this doesn\'t seem right!')
+        });
+
+        tpl2js.inline(js.contents, {target: '/nomatter'}, function (err, actual) {
+            expect(err).to.exist && expect(err).to.equal('unable to set template: no templateUrl clause')
+            done();
+        });
+    });
 });
 
 describe('tpl2js', function () {

@@ -1,6 +1,6 @@
 {
   "name": "angular-tpl2js",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Convert Angular templates to inline JavaScript",
   "files": [
     "index.js"
@@ -22,9 +22,9 @@
     "vinyl": "^1.1.1"
   },
   "dependencies": {
-    "async": "^1.5.2",
+    "async": "^2.0.0-rc.3",
     "cheerio": "^0.20.0",
-    "html-minifier": "^1.2.0"
+    "html-minifier": "^2.1.0"
   },
   "scripts": {
     "test": "gulp test"

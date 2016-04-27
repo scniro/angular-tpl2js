@@ -127,17 +127,24 @@ function TemplateEngine() {
         set: function (transformed) {
             var deferred = new Promise(function (resolve, reject) {
 
-                var parts = transformed.contents.split(/(?=templateUrl)(?!,)/g);
+                try {
+                    var parts = transformed.contents.split(/(?=templateUrl)(?!,)/g);
 
-                parts.forEach(function (element, index, arr) {
+                    if (parts.length === 1)
+                        throw 'unable to set template: no templateUrl clause';
 
-                    var match = (element.match(/(?!,)templateUrl(.*)$/gm));
+                    parts.forEach(function (element, index, arr) {
 
-                    if (match)
-                        arr[index] = arr[index].replace(/(?!,)templateUrl(.*)(?!,)$/gm, 'template: \'' + transformed.templates.shift().replace(/'/g, "\\'") + '\',')
-                });
+                        var match = (element.match(/(?!,)templateUrl(.*)$/gm));
 
-                resolve(parts.join(''));
+                        if (match)
+                            arr[index] = arr[index].replace(/(?!,)templateUrl(.*)(?!,)$/gm, 'template: \'' + transformed.templates.shift().replace(/'/g, "\\'") + '\',')
+                    });
+
+                    resolve(parts.join(''));
+                } catch (err) {
+                    reject(err)
+                }
             });
 
             return deferred;
@@ -160,13 +167,13 @@ function TemplateManager() {
             engine.config.set(config);
         }
 
-        var base, css;
+        var base, js;
 
-        function run(css) {
-            engine.templates.get(css).then(function (transformed) {
+        function run(js) {
+            engine.templates.get(js).then(function (transformed) {
                 engine.templates.set(transformed).then(function (output) {
                     done(null, output); // -- out
-                }, function(err){
+                }, function (err) {
                     done(err) // -- templates.set promise error
                 });
             }, function (err) {
@@ -176,13 +183,13 @@ function TemplateManager() {
 
         if (input instanceof Buffer) {
             base = '/' + path.dirname(path.relative(__dirname, config.target));
-            css = engine.source.hash(input.toString(), base);
-            run(css);
+            js = engine.source.hash(input.toString(), base);
+            run(js);
         } else {
             engine.source.read(input).then(function (data) {
                 base = path.dirname(input);
-                css = engine.source.hash(data, base);
-                run(css);
+                js = engine.source.hash(data, base);
+                run(js);
             });
         }
     }
