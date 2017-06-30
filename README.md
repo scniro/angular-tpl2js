@@ -20,11 +20,11 @@ npm install angular-tpl2js --save-dev
 ### inline(*path*, [*config*], *callback*)
 
 ```javascript
-var tpl2js = require('angular-tpl2js');
+let tpl2js = require('angular-tpl2js');
 
 tpl2js.inline('/js/directive.js', function (err, result) {
 
-    // directive.js with inline template
+  // directive.js with inline template
 });
 ```
 
@@ -34,25 +34,24 @@ tpl2js.inline('/js/directive.js', function (err, result) {
 
 ```javascript
 // defaults
-var config = {
-    include: false,
-    HTMLMinifier: {
-        collapseWhitespace: true,
-        removeComments: true
-    }
+let config = {
+  include: false,
+  HTMLMinifier: {
+    collapseWhitespace: true,
+    removeComments: true
+  }
 }
 ```
 
 ***
 
 ```javascript
-
 tpl2js.inline('/js/directive.js', {include: true}, function (err, result) {
 
-    // directive.js with inline template: ng-include parsed
+  // directive.js with inline template: ng-include parsed
 });
 ```
 
-## Use With Gulp
+## Usage With Gulp
 
 Please use the [gulp-angular-tpl2js plugin](https://github.com/scniro/gulp-angular-tpl2js) for use with gulp.

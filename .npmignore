@@ -1,0 +1,7 @@
+.coverage
+.idea
+node_modules
+.gitignore
+.travis.yml
+.npmignore
+test
